@@ -1,4 +1,5 @@
-using ApiHW.Data;
+using ApiHW.Repositories.Implementations;
+using ApiHW.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,7 @@ builder.Services.AddDbContext<AppDbContext>(o =>
 {
     o.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
 });
+builder.Services.AddScoped<IRepository, Repository>();
 
 var app = builder.Build();
 
