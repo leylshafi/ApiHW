@@ -17,7 +17,7 @@ namespace ApiHW.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(int page = 1, int take = 2)
         {
-            List<Tag> Tags = await _context.Tags.Skip((page - 1) * take).Take(take).ToListAsync();
+            List<Tag> Tags = await _context.Tags.AsNoTracking().Skip((page - 1) * take).Take(take).ToListAsync();
             return Ok(Tags);
         }
 
@@ -31,20 +31,24 @@ namespace ApiHW.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Tag tag)
+        public async Task<IActionResult> Create([FromForm]CreateTagDto tagDto)
         {
+            Tag tag = new()
+            {
+                Name = tagDto.Name,
+            };
             await _context.Tags.AddAsync(tag);
             await _context.SaveChangesAsync();
             return StatusCode(StatusCodes.Status201Created);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, string name)
+        public async Task<IActionResult> Update(int id, [FromForm]UpdateTagDto tagDto)
         {
             if (id <= 0) return StatusCode(StatusCodes.Status400BadRequest);
             Tag tag = await _context.Tags.FirstOrDefaultAsync(t => t.Id == id);
             if (tag is null) return StatusCode(StatusCodes.Status404NotFound);
-            tag.Name = name;
+            tag.Name = tagDto.Name;
             await _context.SaveChangesAsync();
             return NoContent();
         }
@@ -53,7 +57,7 @@ namespace ApiHW.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             if (id <= 0) return StatusCode(StatusCodes.Status400BadRequest);
-            Tag tag = await _context.Tags.FirstOrDefaultAsync(t => t.Id == id);
+            Tag tag = await _context.Tags.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
             if (tag is null) return StatusCode(StatusCodes.Status404NotFound);
             _context.Tags.Remove(tag);
             await _context.SaveChangesAsync();
