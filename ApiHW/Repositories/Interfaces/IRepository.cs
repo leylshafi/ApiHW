@@ -1,14 +1,19 @@
-﻿using System.Linq.Expressions;
+﻿using ApiHW.Entities.Base;
+using System.Linq.Expressions;
 
 namespace ApiHW.Repositories.Interfaces
 {
-    public interface IRepository
+    public interface IRepository<T>where T: BaseEntity,new()
     {
-        Task<IQueryable<Category>> GetAllAsync(Expression<Func<Category, bool>>? expression=null,params string[]includes);
-        Task<Category> GetByIdAsync(int id);
-        Task AddAsync(Category category);
-        void Update(Category category);
-        void Delete(Category category);
+        IQueryable<T> GetAllAsync(Expression<Func<T, bool>>? expression=null, Expression<Func<T,object>>? orderExpression=null,
+            bool isDesc = false,
+            int skip=0,
+            int take = 0, bool isTracking = true,
+            params string[]includes);
+        Task<T> GetByIdAsync(int id);
+        Task AddAsync(T item);
+        void Update(T item);
+        void Delete(T item);
         Task SaveChangesAsync();
     }
 }

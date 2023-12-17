@@ -1,5 +1,7 @@
 using ApiHW.Repositories.Implementations;
 using ApiHW.Repositories.Interfaces;
+using ApiHW.Services.Implementations;
+using ApiHW.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,8 +16,8 @@ builder.Services.AddDbContext<AppDbContext>(o =>
 {
     o.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
 });
-builder.Services.AddScoped<IRepository, Repository>();
-
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
