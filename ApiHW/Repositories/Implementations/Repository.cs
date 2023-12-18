@@ -26,7 +26,7 @@ namespace ApiHW.Repositories.Implementations
             _table.Remove(item);
         }
 
-        public IQueryable<T> GetAllAsync(Expression<Func<T, bool>>? expression = null, Expression<Func<T, object>>? orderExpression = null,
+        public IQueryable<T> GetAllOrderAsync(Expression<Func<T, bool>>? expression = null, Expression<Func<T, object>>? orderExpression = null,
 bool isDesc = false, int skip = 0,
             int take = 0,
             bool isTracking =true,params string[] includes)
@@ -50,6 +50,26 @@ bool isDesc = false, int skip = 0,
                 }
             }
             return isTracking?query:query.AsNoTracking();
+        }
+
+        public IQueryable<T> GetAllAsync(Expression<Func<T, bool>>? expression = null,  int skip = 0,
+            int take = 0,
+            bool isTracking = true, params string[] includes)
+        { 
+            var query = _table.AsQueryable();
+
+            if (expression is not null) query = query.Where(expression);
+            
+            if (skip != 0) query = query.Skip(skip);
+            if (take != 0) query = query.Take(take);
+            if (includes is not null)
+            {
+                for (int i = 0; i < includes.Length; i++)
+                {
+                    query = query.Include(includes[i]);
+                }
+            }
+            return isTracking ? query : query.AsNoTracking();
         }
 
         public async Task<T> GetByIdAsync(int id)
