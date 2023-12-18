@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ApiHW.DTOs.Tag;
+using ApiHW.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApiHW.Controllers
@@ -7,38 +9,30 @@ namespace ApiHW.Controllers
     [ApiController]
     public class TagsController : ControllerBase
     {
-        private readonly AppDbContext _context;
-
-        public TagsController(AppDbContext context)
+        private readonly ITagService _service;
+        public TagsController(ITagService service)
         {
-            _context = context;
+            _service = service;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get(int page = 1, int take = 2)
         {
-            List<Tag> Tags = await _context.Tags.AsNoTracking().Skip((page - 1) * take).Take(take).ToListAsync();
-            return Ok(Tags);
+            return Ok(await _service.GetAllAsync(page, take));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             if (id <= 0) return StatusCode(StatusCodes.Status400BadRequest);
-            Tag tag = await _context.Tags.FirstOrDefaultAsync(t => t.Id == id);
-            if (tag is null) return StatusCode(StatusCodes.Status404NotFound);
-            return Ok(tag);
+            
+            return Ok(await _service.GetAsync(id));
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromForm]CreateTagDto tagDto)
         {
-            Tag tag = new()
-            {
-                Name = tagDto.Name,
-            };
-            await _context.Tags.AddAsync(tag);
-            await _context.SaveChangesAsync();
+            await _service.CreateAsync(tagDto);
             return StatusCode(StatusCodes.Status201Created);
         }
 
@@ -46,10 +40,7 @@ namespace ApiHW.Controllers
         public async Task<IActionResult> Update(int id, [FromForm]UpdateTagDto tagDto)
         {
             if (id <= 0) return StatusCode(StatusCodes.Status400BadRequest);
-            Tag tag = await _context.Tags.FirstOrDefaultAsync(t => t.Id == id);
-            if (tag is null) return StatusCode(StatusCodes.Status404NotFound);
-            tag.Name = tagDto.Name;
-            await _context.SaveChangesAsync();
+            await _service.UpdateAsync(id, tagDto);
             return NoContent();
         }
 
@@ -57,10 +48,7 @@ namespace ApiHW.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             if (id <= 0) return StatusCode(StatusCodes.Status400BadRequest);
-            Tag tag = await _context.Tags.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
-            if (tag is null) return StatusCode(StatusCodes.Status404NotFound);
-            _context.Tags.Remove(tag);
-            await _context.SaveChangesAsync();
+            await _service.DeleteAsync(id);
             return NoContent();
         }
     }

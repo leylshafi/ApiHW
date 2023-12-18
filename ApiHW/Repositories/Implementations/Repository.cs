@@ -54,7 +54,7 @@ bool isDesc = false, int skip = 0,
 
         public async Task<T> GetByIdAsync(int id)
         {
-            var item = await _table.FirstOrDefaultAsync(c => c.Id == id);
+            T item = await _table.FirstOrDefaultAsync(c => c.Id==id);
             return item;
 
         }

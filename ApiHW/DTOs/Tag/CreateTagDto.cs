@@ -1,4 +1,4 @@
-﻿namespace ApiHW.DTOs
+﻿namespace ApiHW.DTOs.Tag
 {
     public class CreateTagDto
     {
